@@ -135,21 +135,6 @@ const mockData = [
         },
         "isActive": false
     },
-    {
-        "_id": "446ca56c-3b30-4fae-9e49-fd9f026ef8fc",
-        "firstName": "Zetta",
-        "lastName": "Wunsch",
-        "policy": "Health Insurance",
-        "currentCompany": "TechCorp",
-        "address": {
-            "flat": "77",
-            "street": "Westgate",
-            "city": "New Kyler",
-            "state": "Nebraska",
-            "postcode": "68953-6569"
-        },
-        "isActive": false
-    }
 ]
 
 export default mockData;
