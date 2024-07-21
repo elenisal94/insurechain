@@ -1,47 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PolicyPage from './tablePages/policyPage/PolicyPage';
-
-axios.defaults.baseURL = 'http://localhost:3001';
-axios.defaults.withCredentials = true;
+import mockData from './mockData';
+import DrawerFilters from './Drawer';  // Adjust the path
 
 const InsuranceSystem = () => {
-
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [refreshInfo, setRefreshInfo] = useState(false)
+  const [openDrawer, setOpenDrawer] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
+  const [refreshInfo, setRefreshInfo] = useState(false);
 
   useEffect(() => {
-    // Fetch users
-    axios.get('/users')
-      .then(response => setUsers(response.data))
-      .catch(error => {
-        console.error('Error fetching users:', error);
-      });
-
-    setRefreshInfo(false);
-
-  }, [refreshInfo]);
+    // Set mock data to state
+    setUsers(mockData);
+  }, []);
 
   useEffect(() => {
     if (selectedUser) {
-      const userId = selectedUser._id;
-      fetchSelectedUser(userId);
+      fetchSelectedUser(selectedUser._id);
     }
   }, [refreshInfo]);
 
   const handleProfileClick = (user) => {
     setSelectedUser(user);
-    setOpen(true);
+    setOpenDrawer(true);
   };
 
   const handleEditClick = (user) => {
     setSelectedUser(user);
     setIsEditing(true);
-    setOpen(true);
+    setOpenDrawer(true);
   };
 
   const fetchSelectedUser = async (userId) => {
@@ -53,16 +42,25 @@ const InsuranceSystem = () => {
     }
   };
 
-  // const handleCloseDrawer = () => {
-  //   setSelectedUser(null);
-  //   setOpen(false);
-  // };
+  const handleCloseDrawer = () => {
+    setOpenDrawer(false);
+    setSelectedUser(null);
+    setIsEditing(false);
+  };
 
   return (
     <div>
       <div className="main-content">
         <PolicyPage users={users} onProfileClick={handleProfileClick} handleEditClick={handleEditClick} />
       </div>
+      <DrawerFilters
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        selectedUser={selectedUser}
+        open={openDrawer}
+        onClose={handleCloseDrawer}
+        setRefreshInfo={setRefreshInfo}
+      />
     </div>
   );
 };

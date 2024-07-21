@@ -18,34 +18,33 @@ import Typography from '@mui/joy/Typography';
 import CircularProgress from '@mui/joy/CircularProgress';
 import { useMediaQuery, useTheme } from '@mui/material';
 
-export default function DrawerFilters({ isEditing, setIsEditing, selectedTenant, open, onClose, setRefreshInfo }) {
+export default function DrawerFilters({ isEditing, setIsEditing, selectedUser, open, onClose, setRefreshInfo }) {
     const [isLoading, setIsLoading] = useState(false);
-
     const {
         register,
         handleSubmit,
         watch,
         formState: { errors },
-    } = useForm()
+    } = useForm();
 
-    const onSubmit = (data) => console.log(data)
+    const onSubmit = (data) => console.log(data);
 
-    const [userData, setTenantData] = useState(selectedTenant || {});
+    const [userData, setUserData] = useState(selectedUser || {});
     const [flat, setFlat] = useState('');
     const [street, setStreet] = useState('');
     const [city, setCity] = useState('');
     const [postcode, setPostcode] = useState('');
 
     useEffect(() => {
-        setTenantData(selectedTenant || {});
-        if (selectedTenant?.address) {
-            const { flat, street, city, postcode } = selectedTenant.address;
+        setUserData(selectedUser || {});
+        if (selectedUser?.address) {
+            const { flat, street, city, postcode } = selectedUser.address;
             setFlat(flat || '');
             setStreet(street || '');
             setCity(city || '');
             setPostcode(postcode || '');
         }
-    }, [selectedTenant]);
+    }, [selectedUser]);
 
     const handleEditButtonClick = () => {
         setIsEditing(true);
@@ -72,13 +71,13 @@ export default function DrawerFilters({ isEditing, setIsEditing, selectedTenant,
                     break;
             }
         } else {
-            setTenantData(prevData => ({ ...prevData, [name]: value }));
+            setUserData(prevData => ({ ...prevData, [name]: value }));
         }
     };
 
     const handleBackButtonClick = () => {
         setIsEditing(false);
-    }
+    };
 
     const finalSubmit = async (e) => {
         e.preventDefault();
@@ -87,8 +86,7 @@ export default function DrawerFilters({ isEditing, setIsEditing, selectedTenant,
             const updatedAddress = { flat, street, city, postcode };
             const updatedData = { ...userData, address: updatedAddress };
             await axios.put(`http://localhost:3001/api/users/${userData._id}`, updatedData);
-            setTenantData(updatedData);
-
+            setUserData(updatedData);
         } catch (error) {
             console.error(error);
         } finally {
@@ -101,345 +99,166 @@ export default function DrawerFilters({ isEditing, setIsEditing, selectedTenant,
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
+    // Sample policy history
+    const policyHistory = [
+        { company: "Acme Insurance", startDate: "2022-01-15", endDate: "2023-01-15" },
+        { company: "Global Insurance Co.", startDate: "2021-01-10", endDate: "2022-01-10" },
+        { company: "SecureLife Ltd.", startDate: "2020-01-05", endDate: "2021-01-05" },
+    ];
+
     return (
-        <React.Fragment>
-            <Drawer
-                size={isSmallScreen ? 'lg' : 'md'}
-                variant="plain"
-                anchor={isSmallScreen ? 'bottom' : 'right'}
-                open={open}
-                onClose={onClose}
-                hideBackdrop={false}
-                slotProps={{
-                    content: {
-                        sx: {
-                            bgcolor: 'transparent',
-                            p: { md: 3, sm: 0 },
-                            boxShadow: 'none',
-                            height: isSmallScreen ? '85vh' : '100%',
-                        },
+        <Drawer
+            size={isSmallScreen ? 'lg' : 'md'}
+            variant="plain"
+            anchor={isSmallScreen ? 'bottom' : 'right'}
+            open={open}
+            onClose={onClose}
+            hideBackdrop={false}
+            slotProps={{
+                content: {
+                    sx: {
+                        bgcolor: 'transparent',
+                        p: { md: 3, sm: 0 },
+                        boxShadow: 'none',
+                        height: isSmallScreen ? '85vh' : '100%',
                     },
-                }}
-                ModalProps={{
-                    style: {
-                        pointerEvents: 'none',
-                    },
+                },
+            }}
+            ModalProps={{
+                style: {
+                    pointerEvents: 'none',
+                },
+            }}
+        >
+            <Sheet
+                variant="outlined"
+                sx={{
+                    borderRadius: 'md',
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    height: '100%',
+                    overflow: 'auto',
                 }}
             >
-                <Sheet
-                    variant="outlined"
-                    sx={{
-                        borderRadius: 'md',
-                        p: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2,
-                        height: '100%',
-                        overflow: 'auto',
-                    }}
-                >
-                    <ModalClose />
-                    <DialogTitle>Policy history</DialogTitle>
-                    <DialogContent>
-                        {selectedTenant && (
-                            !isEditing ? (
-                                <FormControl orientation="horizontal">
-                                    <Box sx={{ flex: 1, pr: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                            <FormLabel sx={{ typography: 'title-sm' }}>
-                                                Name
-                                            </FormLabel>
-                                            <FormHelperText sx={{ typography: 'body-sm' }}>
-                                                {userData?.firstName} {userData?.lastName}
-                                            </FormHelperText>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                            <FormLabel sx={{ typography: 'title-sm' }}>
-                                                Email
-                                            </FormLabel>
-                                            <FormHelperText sx={{ typography: 'body-sm' }}>
-                                                {userData?.email}
-                                            </FormHelperText>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                            <FormLabel sx={{ typography: 'title-sm' }}>
-                                                Phone
-                                            </FormLabel>
-                                            <FormHelperText sx={{ typography: 'body-sm' }}>
-                                                {userData?.phone}
-                                            </FormHelperText>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                            <FormLabel sx={{ typography: 'title-sm' }}>
-                                                Adress
-                                            </FormLabel>
-                                            <FormHelperText sx={{ typography: 'body-sm' }}>
-                                                {userData.address?.flat}, {selectedTenant.address?.street}, {userData.address?.city}, {userData.address?.postcode}
-                                            </FormHelperText>
-                                        </Box>
+                <ModalClose />
+                <DialogTitle>User information</DialogTitle>
+                <DialogContent>
+                    {selectedUser && (
+                        !isEditing ? (
+                            <FormControl orientation="horizontal">
+                                <Box sx={{ flex: 1, pr: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                        <FormLabel sx={{ typography: 'title-sm' }}>Name</FormLabel>
+                                        <FormHelperText sx={{ typography: 'body-sm' }}>
+                                            {userData?.firstName} {userData?.lastName}
+                                        </FormHelperText>
                                     </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                        <FormLabel sx={{ typography: 'title-sm' }}>Policy name</FormLabel>
+                                        <FormHelperText sx={{ typography: 'body-sm' }}>
+                                            {userData?.policy}
+                                        </FormHelperText>
+                                    </Box>
+                                    <Divider />
+                                    <Typography level="title-md" fontWeight="bold" sx={{ mt: 2 }}>
+                                        Policy History
+                                    </Typography>
+                                    {policyHistory.length > 0 ? (
+                                        <Box>
+                                            {policyHistory.map((policy, index) => (
+                                                <Box key={index} sx={{ mb: 2 }}>
+                                                    <FormControl>
+                                                        <FormLabel sx={{ typography: 'title-sm' }}>
+                                                            Company
+                                                        </FormLabel>
+                                                        <FormHelperText sx={{ typography: 'body-sm' }}>
+                                                            {policy.company}
+                                                        </FormHelperText>
+                                                    </FormControl>
+                                                    <FormControl>
+                                                        <FormLabel sx={{ typography: 'title-sm' }}>
+                                                            Start Date
+                                                        </FormLabel>
+                                                        <FormHelperText sx={{ typography: 'body-sm' }}>
+                                                            {new Date(policy.startDate).toLocaleDateString()}
+                                                        </FormHelperText>
+                                                    </FormControl>
+                                                    <FormControl>
+                                                        <FormLabel sx={{ typography: 'title-sm' }}>
+                                                            End Date
+                                                        </FormLabel>
+                                                        <FormHelperText sx={{ typography: 'body-sm' }}>
+                                                            {new Date(policy.endDate).toLocaleDateString()}
+                                                        </FormHelperText>
+                                                    </FormControl>
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    ) : (
+                                        <Typography>No policy history available.</Typography>
+                                    )}
+                                </Box>
+                            </FormControl>
+                        ) : (
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                {/* Form fields for editing */}
+                                <FormControl>
+                                    <FormLabel>First Name</FormLabel>
+                                    <Input
+                                        name="firstName"
+                                        variant="outlined"
+                                        value={userData?.firstName || ""}
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        sx={{ marginBottom: 1 }}
+                                        placeholder="First name"
+                                    />
                                 </FormControl>
-                            ) : (
-                                <form onSubmit={handleSubmit(onSubmit)}>
-                                    <FormControl>
-                                        <FormLabel>
-                                            First Name
-                                        </FormLabel>
-                                        <Input
-                                            name="firstName"
-                                            variant="outlined"
-                                            value={userData?.firstName || ""}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }}
-                                            placeholder="First name" />
-
-                                    </FormControl>
-                                    {errors[`firstName-${selectedTenant?._id}`] && <span>This field is required</span>}
-                                    <FormControl>
-                                        <FormLabel>
-                                            Last Name
-                                        </FormLabel>
-                                        <Input
-                                            name="lastName"
-                                            variant="outlined"
-                                            value={userData?.lastName}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                    <FormControl required>
-                                        <FormLabel>
-                                            Email
-                                        </FormLabel>
-                                        <Input
-                                            name="email"
-                                            value={userData?.email}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                    <FormControl>
-                                        <FormLabel>
-                                            Phone
-                                        </FormLabel>
-                                        <Input
-                                            name="phone"
-                                            variant="outlined"
-                                            value={userData?.phone}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                    <FormControl>
-                                        <FormLabel>
-                                            Flat
-                                        </FormLabel>
-                                        <Input
-                                            name="address.flat"
-                                            variant="outlined"
-                                            value={flat}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                    <FormControl>
-                                        <FormLabel>
-                                            Street
-                                        </FormLabel>
-                                        <Input
-                                            name="address.street"
-                                            variant="outlined"
-                                            value={street}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                    <FormControl>
-                                        <FormLabel>
-                                            City
-                                        </FormLabel>
-                                        <Input
-                                            name="address.city"
-                                            variant="outlined"
-                                            value={city}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                    <FormControl>
-                                        <FormLabel>
-                                            Postcode
-                                        </FormLabel>
-                                        <Input
-                                            name="address.postcode"
-                                            variant="outlined"
-                                            value={postcode}
-                                            onChange={handleInputChange}
-                                            fullWidth
-                                            sx={{ marginBottom: 1 }} />
-
-                                    </FormControl>
-                                </form>
-                            )
-                        )}
-
-                        <Divider />
-                        <Typography level="title-md" fontWeight="bold" sx={{ mt: 2 }}>
-                            Rent information
-                        </Typography>
-                        <Box sx={{ flex: 1, pr: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Rent Paid
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.rentPaid ? 'Yes' : 'No'}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Total Rent Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.totalRentPayments}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Completed Rent Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.completedRentPayments}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Pending Rent Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.pendingRentPayments}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Late Rent Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.lateRentPayments}
-                                </FormHelperText>
-                            </Box>
-                        </Box>
-                        <Divider />
-                        <Typography level="title-md" fontWeight="bold" sx={{ mt: 2 }}>
-                            Bill information
-                        </Typography>
-                        <Box sx={{ flex: 1, pr: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Bills Paid
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.billsPaid ? 'Yes' : 'No'}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Total Bill Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.totalBillPayments}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Completed Bill Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.completedBillPayments}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Pending Bill Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.pendingBillPayments}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Late Bill Payments
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.lateBillPayments}
-                                </FormHelperText>
-                            </Box>
-                        </Box>
-                        <Divider />
-                        <Typography level="title-md" fontWeight="bold" sx={{ mt: 2 }}>
-                            Task information
-                        </Typography>
-                        <Box sx={{ flex: 1, pr: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Total Tasks
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.totalTasks}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Completed Tasks
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.completedTasks}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Pending Tasks
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.pendingTasks}
-                                </FormHelperText>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                <FormLabel sx={{ typography: 'title-sm' }}>
-                                    Overdue Tasks
-                                </FormLabel>
-                                <FormHelperText sx={{ typography: 'body-sm' }}>
-                                    {selectedTenant?.overdueTasks}
-                                </FormHelperText>
-                            </Box>
-                        </Box>
-                    </DialogContent>
-                    <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        useFlexGap
-                        spacing={1}
-                    >
-                        {!isEditing ? '' :
-                            <Button
-                                variant="outlined"
-                                color="neutral"
-                                onClick={handleBackButtonClick}>
-                                Back
-                            </Button>}
-                        {!isEditing ? <Button color="warning" variant="soft" sx={{ marginLeft: 'auto' }} onClick={handleEditButtonClick}>Edit user info</Button> : <Button onClick={finalSubmit}>
-                            {isLoading ? <CircularProgress /> : "Save Changes"}
-                        </Button>}
-                    </Stack>
-                </Sheet>
-            </Drawer>
-        </React.Fragment >
+                                {errors[`firstName-${selectedUser?._id}`] && <span>This field is required</span>}
+                                <FormControl>
+                                    <FormLabel>Last Name</FormLabel>
+                                    <Input
+                                        name="lastName"
+                                        variant="outlined"
+                                        value={userData?.lastName}
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        sx={{ marginBottom: 1 }}
+                                    />
+                                </FormControl>
+                                <FormControl required>
+                                    <FormLabel>Policy Name</FormLabel>
+                                    <Input
+                                        name="email"
+                                        value={userData?.policy}
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        sx={{ marginBottom: 1 }}
+                                    />
+                                </FormControl>
+                                <Stack
+                                    direction="row"
+                                    justifyContent="space-between"
+                                    useFlexGap
+                                    spacing={1}
+                                >
+                                    <Button
+                                        variant="outlined"
+                                        color="neutral"
+                                        onClick={handleBackButtonClick}>
+                                        Back
+                                    </Button>
+                                    <Button type="submit" color="success" variant="soft">
+                                        {isLoading ? <CircularProgress size={24} /> : "Save Changes"}
+                                    </Button>
+                                </Stack>
+                            </form>
+                        )
+                    )}
+                </DialogContent>
+            </Sheet>
+        </Drawer>
     );
 }

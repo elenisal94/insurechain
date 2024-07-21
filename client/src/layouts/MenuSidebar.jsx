@@ -108,7 +108,7 @@ export default function Sidebar() {
                 onClick={() => closeSidebar()}
             />
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <Typography level="title-lg">InsureChain</Typography>
+                <Typography level="title-lg">InsuReChain</Typography>
                 <ColorSchemeToggle sx={{ ml: 'auto' }} />
             </Box>
             <Input size="sm" startDecorator={<SearchRoundedIcon />} placeholder="Search" />
